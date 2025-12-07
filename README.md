@@ -1,1 +1,4 @@
-Halo DevOps pertama saya!
+# Belajar DevOps
+![CI Pipeline Status](https://github.com/tihsany/belajar-devops/actions/workflows/ci.yaml/badge.svg)
+
+Belajar DevOps
