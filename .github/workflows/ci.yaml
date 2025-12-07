@@ -7,11 +7,16 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Say hello
-        run: echo "Pipeline CI berjalan dengan baik!"
+      - name: Jalankan build script
+        run: ./build.sh
+
+      - name: Jalankan test script
+        run: ./test.sh
+
