@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest"
+    "test": "jest",
+    "build": "echo \"No build step needed\""
   },
   "keywords": [],
   "author": "",
