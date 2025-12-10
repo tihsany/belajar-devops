@@ -3,7 +3,7 @@ const app = express();
 const PORT = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Latihan CI/CD otomatisasi update dari fitur-biodata!');
+  res.send('Latihan lagi CI/CD otomatisasi update dari fitur-biodata!');
 });
 
 app.listen(PORT, () => {
