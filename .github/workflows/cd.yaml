@@ -19,7 +19,7 @@ jobs:
 
     - name: Deploy via SSH
       run: |
-        ssh -o StrictHostKeyChecking=no opik@${{ secrets.SERVER_IP }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no opik@${{ secrets.192.168.0.142 }} << 'EOF'
           cd /home/opik/belajar-devops/app
           git pull origin main
           npm ci
