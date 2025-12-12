@@ -1,0 +1,46 @@
+name: Docker Deploy to Server
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Install SSH Client
+      - name: Install SSH Client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+      # Setup SSH Keys
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      # Add server host to known_hosts
+      - name: Add server fingerprint
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      # Connect & deploy with docker-compose
+      - name: Deploy to server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd /home/opik/app
+
+            echo "➡ Pulling latest image..."
+            docker compose pull
+
+            echo "➡ Rebuilding and starting containers..."
+            docker compose up -d
+
+            echo "➡ Cleaning unused images..."
+            docker image prune -f
+
+            echo "✔ Deployment finished!"
+          EOF

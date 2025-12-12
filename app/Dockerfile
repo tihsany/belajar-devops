@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose port aplikasi
-EXPOSE 3000
+EXPOSE 3001
 
 # Command untuk menjalankan aplikasi
 CMD ["node", "app.js"]
