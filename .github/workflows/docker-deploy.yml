@@ -12,31 +12,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Install SSH Client
       - name: Install SSH Client
         run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-      # Setup SSH Keys
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      # Add server host to known_hosts
+      # Add Cloudflare hostname fingerprint
       - name: Add server fingerprint
-        run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_HOSTNAME }} >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      # Connect & deploy with docker-compose
       - name: Deploy to server
         run: |
-          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOSTNAME }} << 'EOF'
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd /home/opik/belajar-devops/app
 
             echo "➡ Pulling latest image..."
             docker compose pull
 
-            echo "➡ Rebuilding and starting containers..."
+            echo "➡ Restarting containers..."
             docker compose up -d
 
             echo "➡ Cleaning unused images..."
@@ -44,4 +41,3 @@ jobs:
 
             echo "✔ Deployment finished!"
           EOF
-
