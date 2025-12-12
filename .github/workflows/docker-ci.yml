@@ -52,14 +52,14 @@ jobs:
           file: ./app/Dockerfile
           push: true
           tags: |
-            ghcr.io/opik/belajar-devops:${{ steps.meta.outputs.latest_tag }}
-            ghcr.io/opik/belajar-devops:${{ steps.meta.outputs.branch_tag }}
-            ghcr.io/opik/belajar-devops:${{ steps.meta.outputs.sha_tag }}
+            ghcr.io/tihsany/belajar-devops:${{ steps.meta.outputs.latest_tag }}
+            ghcr.io/tihsany/belajar-devops:${{ steps.meta.outputs.branch_tag }}
+            ghcr.io/tihsany/belajar-devops:${{ steps.meta.outputs.sha_tag }}
 
       # 6. Print tags for debugging
       - name: Show image tags
         run: |
           echo "Image pushed:"
-          echo "ghcr.io/opik/belajar-devops:${{ steps.meta.outputs.latest_tag }}"
-          echo "ghcr.io/opik/belajar-devops:${{ steps.meta.outputs.branch_tag }}"
-          echo "ghcr.io/opik/belajar-devops:${{ steps.meta.outputs.sha_tag }}"
+          echo "ghcr.io/tihsany/belajar-devops:${{ steps.meta.outputs.latest_tag }}"
+          echo "ghcr.io/tihsany/belajar-devops:${{ steps.meta.outputs.branch_tag }}"
+          echo "ghcr.io/tihsany/belajar-devops:${{ steps.meta.outputs.sha_tag }}"
