@@ -30,7 +30,7 @@ jobs:
       # Connect & deploy with docker-compose
       - name: Deploy to server
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOSTNAME }} << 'EOF'
             cd /home/opik/belajar-devops/app
 
             echo "➡ Pulling latest image..."
@@ -44,3 +44,4 @@ jobs:
 
             echo "✔ Deployment finished!"
           EOF
+
