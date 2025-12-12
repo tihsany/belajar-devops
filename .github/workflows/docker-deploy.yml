@@ -20,7 +20,7 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
       # Add server host to known_hosts
@@ -31,7 +31,7 @@ jobs:
       - name: Deploy to server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            cd /home/opik/app
+            cd /home/opik/belajar-devops/app
 
             echo "➡ Pulling latest image..."
             docker compose pull
