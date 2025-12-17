@@ -1,4 +1,4 @@
-name: Docker Deploy to Server
+name: Docker Deploy (Cloudflare Tunnel)
 
 on:
   push:
@@ -9,33 +9,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install SSH Client
-        run: sudo apt-get update && sudo apt-get install -y openssh-client
+      - name: Install cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+          sudo dpkg -i cloudflared.deb
 
-      - name: Setup SSH key
+      - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Deploy to server via Cloudflare Tunnel
+      - name: Deploy via Cloudflare Tunnel
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          ssh -o StrictHostKeyChecking=no \
-              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh \
+            -o ProxyCommand="cloudflared access ssh --hostname $SSH_HOST" \
+            -o StrictHostKeyChecking=no \
+            $SSH_USER@localhost << 'EOF'
 
             cd /home/opik/belajar-devops/app
-
-            echo "➡ Pulling latest image..."
             docker compose pull
-
-            echo "➡ Restarting containers..."
             docker compose up -d
-
-            echo "➡ Cleaning unused images..."
             docker image prune -f
 
-            echo "✔ Deployment finished!"
+            echo "🚀 Deployment success"
           EOF
