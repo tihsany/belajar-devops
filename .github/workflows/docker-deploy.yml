@@ -27,6 +27,13 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
+
+      - name: Login to GHCR
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOSTNAME }} << 'EOF'
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+          EOF
+
         run: |
           ssh \
             -o ProxyCommand="cloudflared access ssh --hostname $SSH_HOST" \
