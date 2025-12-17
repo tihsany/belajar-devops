@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install cloudflared
@@ -17,29 +17,30 @@ jobs:
           curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
           sudo dpkg -i cloudflared.deb
 
-      - name: Setup SSH Key
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-      
-      - name: Login to GHCR
-        run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOSTNAME }} << 'EOF'
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-          EOF
 
-      - name: Deploy via Cloudflare Tunnel
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-
-      
+      - name: Login to GHCR (via tunnel)
         run: |
           ssh \
-            -o ProxyCommand="cloudflared access ssh --hostname $SSH_HOST" \
+            -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.SSH_HOST }}" \
             -o StrictHostKeyChecking=no \
-            $SSH_USER@localhost << 'EOF'
+            ${{ secrets.SSH_USER }}@localhost << 'EOF'
+            
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+              -u "${{ secrets.GHCR_USERNAME }}" \
+              --password-stdin
+          EOF
+
+      - name: Deploy application
+        run: |
+          ssh \
+            -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.SSH_HOST }}" \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@localhost << 'EOF'
 
             cd /home/opik/belajar-devops/app
             docker compose pull
