@@ -1,4 +1,4 @@
-name: Docker Deploy via Cloudflare Tunnel
+name: Docker Deploy to Server
 
 on:
   push:
@@ -12,36 +12,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 1. Instal cloudflared di GitHub Runner agar bisa lewat tunnel
-      - name: Install cloudflared
-        run: |
-          sudo mkdir -p --mode=0755 /usr/share/keyrings
-          curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
-          echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared-ascii.repo.pub cloudflared main" | sudo tee /etc/apt/sources.list.d/cloudflared.list
-          sudo apt-get update && sudo apt-get install cloudflared
+      - name: Install SSH Client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
-      # 2. Tambahkan fingerprint dengan cara khusus Cloudflare
-      - name: Add server fingerprint
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          # SSH keyscan via cloudflared proxy
-          ssh-keyscan -H -t rsa ${{ secrets.SSH_HOST }} \
-            -o "ProxyCommand=cloudflared access ssh --hostname %h" >> ~/.ssh/known_hosts
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-      # 3. Deploy menggunakan ProxyCommand
+      # Add Cloudflare hostname fingerprint
+      - name: Add server fingerprint
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
       - name: Deploy to server
         run: |
-          ssh -o "ProxyCommand=cloudflared access ssh --hostname %h" \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd /home/opik/belajar-devops/app
+
             echo "➡ Pulling latest image..."
             docker compose pull
+
             echo "➡ Restarting containers..."
             docker compose up -d
+
+            echo "➡ Cleaning unused images..."
+            docker image prune -f
+
             echo "✔ Deployment finished!"
           EOF
