@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/opik/belajar-devops:latest
+    image: ghcr.io/tihsany/belajar-devops:latest
     container_name: belajar-devops
     restart: unless-stopped
     ports:
