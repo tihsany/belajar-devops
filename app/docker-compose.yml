@@ -1,35 +1,36 @@
 services:
-  web:
+  app:
     image: ghcr.io/tihsany/belajar-devops:latest
-    container_name: belajar-devops
-    restart: unless-stopped
+    container_name: app-web
     ports:
       - "3001:3001"
     environment:
-      - NODE_ENV=production
-    networks:
-      - app_network
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=belajar
+    depends_on:
+      - redis
+      - db
+    restart: always
 
-# Kamu nanti cukup tambahkan service lain seperti ini:
-#
-#  redis:
-#    image: redis:7
-#    container_name: belajar-redis
-#    restart: unless-stopped
-#    ports:
-#      - "6379:6379"
-#    networks:
-#      - app_network
-#
-#  db:
-#    image: postgres:15
-#    environment:
-#      POSTGRES_PASSWORD=secret
-#    restart: always
-#    networks:
-#      - app_network
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
 
-networks:
-  app_network:
-    driver: bridge
+  db:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: belajar
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
 
+volumes:
+  db_data:
