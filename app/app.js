@@ -22,7 +22,7 @@ redisClient.on('error', (err) => console.error('Redis Error', err));
 app.get('/', async (req, res) => {
   const count = await redisClient.incr('visitor_count');
   res.json({
-    message: 'Hello from Docker + Redis 🚀 with opik',
+    message: 'Hello from Docker + Redis 🚀 to',
     visitor: count,
   });
 });
