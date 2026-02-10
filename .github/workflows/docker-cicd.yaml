@@ -13,6 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    outputs:                     
+      sha_tag: ${{ steps.meta.outputs.sha_tag }}
+
     permissions:
       contents: read
       packages: write
@@ -87,3 +90,7 @@ jobs:
             docker compose pull
             docker compose up -d
             docker ps
+      - name: Debug SHA
+          run: |
+            echo "SHA from build: ${{ needs.build.outputs.sha_tag }}"
+
