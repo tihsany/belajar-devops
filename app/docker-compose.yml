@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/tihsany/belajar-devops:latest
+    image: ghcr.io/tihsany/belajar-devops:${IMAGE_TAG}
     container_name: app-web
     ports:
       - "3001:3001"
